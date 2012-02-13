@@ -2,7 +2,8 @@ var http = require('http')
   , url = require('url')
   , qs = require('querystring')
   , fs = require('fs')
-  , emitter = require('events').EventEmitter
+  , EventEmitter = require('events').EventEmitter
+  , emitter = new EventEmitter()
   ;
   
 http.createServer(handleRequest).listen(5000);
@@ -25,7 +26,7 @@ function handleRequest(req, res) {
       body += data;
     });
     req.on('end', function () {
-      emitter.emit('test', body)
+      emitter.emit('test', body);
       emitter.on('result', function (result) {
         res.end(result);
       });
@@ -33,7 +34,8 @@ function handleRequest(req, res) {
   }
   else if (path === '/run') {
     emitter.on('test', function (test) {
-      res.setHeader('Content-type', 'text/javascript');
+      console.log('Sending test to browser: ' + test);
+      res.setHeader('Content-type', 'text/plain');
       res.end(test);
     });
   }
@@ -42,6 +44,7 @@ function handleRequest(req, res) {
       body += data;
     });
     req.on('end', function () {
+      console.log('Received result from browser: ' + body);
       emitter.emit('result', body)
       res.end();
     });

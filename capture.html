@@ -13,7 +13,9 @@
         , dataType: 'json'
         , timeout: 30000
         , success: function(data) {
+            console.log('Received test: ' + data);
             var result = eval(data);
+            console.log('Sending result: ' + result);
             $.post('/result', result, function success () {
               poll();
             });
