@@ -13,6 +13,7 @@
         , dataType: 'json'
         , timeout: 30000
         , success: function(data) {
+            console.log(data);
             var result = eval(data.test);
             console.log('Sending result: ' + result);
             $.post('/result', '' + result, function success () {
