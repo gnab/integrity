@@ -13,7 +13,6 @@
         , dataType: 'json'
         , timeout: 30000
         , success: function(data) {
-            console.log(data);
             var result = eval(data.test);
             console.log('Sending result: ' + result);
             $.post('/result', '' + result, function success () {
@@ -21,7 +20,11 @@
             });
           }
         , error: function (err) {
-            console.log(err);
+            if (err.statusText === 'timeout') {
+              poll();
+              return;
+            }
+
             console.log('Unable to poll, make sure server is running.')
           }});
       })();  
