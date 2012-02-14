@@ -34,9 +34,8 @@ function handleRequest(req, res) {
   }
   else if (path === '/run') {
     emitter.on('test', function (test) {
-      console.log('Sending test to browser: ' + test);
-      res.setHeader('Content-type', 'text/plain');
-      res.end(test);
+      res.setHeader('Content-type', 'text/json');
+      res.end(JSON.stringify({test: test}));
     });
   }
   else if (path === '/result') {
@@ -44,7 +43,6 @@ function handleRequest(req, res) {
       body += data;
     });
     req.on('end', function () {
-      console.log('Received result from browser: ' + body);
       emitter.emit('result', body)
       res.end();
     });
