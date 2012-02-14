@@ -54,7 +54,7 @@ function scheduleTest(req, res) {
 }
 
 function awaitTest(req, res) {
-  emitter.on('test', function (test) {
+  emitter.once('test', function (test) {
     res.setHeader('Content-type', 'text/json');
     res.end(JSON.stringify({test: test}));
   });
