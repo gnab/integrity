@@ -12,12 +12,12 @@
           url: '/run'
         , dataType: 'json'
         , timeout: 30000
-        , success: function(data) {
-            var result = eval(data.test);
-            console.log('Sending result: ' + result);
-            $.post('/result', '' + result, function success () {
-              poll();
-            });
+        , success: function(test) {
+            var result = eval(test.data);
+            $.post('/result', JSON.stringify({id: test.id, result: result}),
+              function success () {
+                poll();
+              });
           }
         , error: function (err) {
             if (err.statusText === 'timeout') {

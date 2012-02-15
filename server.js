@@ -2,14 +2,12 @@ var http = require('http')
   , url = require('url')
   , qs = require('querystring')
   , fs = require('fs')
-  , EventEmitter = require('events').EventEmitter
-  , emitter = new EventEmitter()
+  , uuid = require('node-uuid')
   , runners = []
+  , tests = {}
   ;
   
 http.createServer(handleRequest).listen(5000);
-
-emitter.on('test', runTest);
 
 function handleRequest(req, res) {
   var path = url.parse(req.url).pathname
@@ -42,43 +40,47 @@ function captureBrowser(req, res) {
 }
 
 function scheduleTest(req, res) {
-  var body = '';
-
-  req.on('data', function (data) {
-    body += data;
-  });
-  req.on('end', function () {
-    emitter.emit('test', body);
-    emitter.on('result', function (result) {
-      res.end(result);
-    });
+  readData(req, function (data) {
+    runTest(data, res);
   });
 }
 
 function registerRunner(req, res) {
   runners.push({request: req, response: res});
-  console.log('Added runner.');
 }
 
 function notifyResult(req, res) {
-  var body = '';
-
-  req.on('data', function (data) {
-    body += data;
-  });
-  req.on('end', function () {
-    emitter.emit('result', body)
+  readData(req, function (data) {
+    var test = JSON.parse(data);
+    tests[test.id].response.end('' + test.result);
+    delete tests[test.id];
     res.end();
   });
 }
 
-function runTest(test) {
-  var runner;
+function readData(req, callback) {
+  var data = '';
 
-  console.log('Running test on %d runners...', runners.length);
+  req.on('data', function (chunk) {
+    data += chunk;
+  });
+  req.on('end', function () {
+    callback(data);
+  });
+}
+
+function runTest(data, res) {
+  var id = uuid.v4()
+    , runner
+    ;
+
+  tests[id] = {data: data, response: res};
 
   while (runner = runners.pop()) {
+    if (runner.response.finished) {
+      continue;
+    }
     runner.response.setHeader('Content-type', 'text/json');
-    runner.response.end(JSON.stringify({test: test}));
+    runner.response.end(JSON.stringify({id: id, data: data}));
   }
 }
