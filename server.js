@@ -4,10 +4,12 @@ var http = require('http')
   , fs = require('fs')
   , EventEmitter = require('events').EventEmitter
   , emitter = new EventEmitter()
-  , util = require('util')
+  , runners = []
   ;
   
 http.createServer(handleRequest).listen(5000);
+
+emitter.on('test', runTest);
 
 function handleRequest(req, res) {
   var path = url.parse(req.url).pathname
@@ -21,7 +23,7 @@ function handleRequest(req, res) {
     scheduleTest(req, res);
   }
   else if (path === '/run') {
-    awaitTest(req, res);
+    registerRunner(req, res);
   }
   else if (path === '/result') {
     notifyResult(req, res);
@@ -53,11 +55,9 @@ function scheduleTest(req, res) {
   });
 }
 
-function awaitTest(req, res) {
-  emitter.once('test', function (test) {
-    res.setHeader('Content-type', 'text/json');
-    res.end(JSON.stringify({test: test}));
-  });
+function registerRunner(req, res) {
+  runners.push({request: req, response: res});
+  console.log('Added runner.');
 }
 
 function notifyResult(req, res) {
@@ -70,4 +70,15 @@ function notifyResult(req, res) {
     emitter.emit('result', body)
     res.end();
   });
+}
+
+function runTest(test) {
+  var runner;
+
+  console.log('Running test on %d runners...', runners.length);
+
+  while (runner = runners.pop()) {
+    runner.response.setHeader('Content-type', 'text/json');
+    runner.response.end(JSON.stringify({test: test}));
+  }
 }
