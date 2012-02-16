@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Integrity</title>
+    <script type="text/javascript" src="/nowjs/now.js"></script>
+    <script type="text/javascript">
+      now.ready(function(){
+        now.run = function(code, callback){
+          var result = eval(code);
+          callback(result);
+        };
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
