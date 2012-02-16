@@ -1,8 +1,12 @@
 {
   "name": "integrity"
 , "version" : "0.0.1"
-, "devDependencies":
+, "bin": {
+    "integrity": "./bin/integrity"
+  , "integrity-server": "./bin/integrity-server"
+  }
+, "dependencies":
   {
-  , "now": "0.8.1"
+    "now": "0.8.1"
   }
 }

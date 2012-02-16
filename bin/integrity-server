@@ -1,0 +1,34 @@
+#!/usr/bin/env node
+
+var path = require('path')
+  , integrity = require('../lib/integrity')
+  , util = require('../lib/util')
+  , argv = [].slice.call(process.argv, 2)
+  , options
+  ;
+
+options = parseOptions(argv);
+
+if (!validateOptions(options)) {
+  process.exit(1);
+}
+
+integrity.serve(options);
+
+function parseOptions (argv) {
+  var options = util.parseCommonOptions(argv);
+
+  if (!options) {
+    return null;
+  }
+
+  return options;
+}
+
+function validateOptions(options) {
+  if (!options) {
+    return false;
+  }
+
+  return true;
+}

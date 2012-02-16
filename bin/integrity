@@ -1,0 +1,101 @@
+#!/usr/bin/env node
+
+var path = require('path')
+  , fs = require('fs')
+  , integrity = require('../lib/integrity')
+  , util = require('../lib/util')
+  , argv = [].slice.call(process.argv, 2)
+  , options
+  ;
+
+options = parseOptions(argv);
+
+if (!validateOptions(options)) {
+  process.exit(1);
+}
+
+if (options.code) {
+  runCode(options.code, options, function (error) {
+    if (error) {
+      return;
+    }
+
+    runFiles(options.files, options);
+  });
+}
+else {
+  runFiles(options.files, options);
+}
+
+function parseOptions (argv) {
+  var options = util.parseCommonOptions(argv)
+    , i
+    ;
+
+  if (!options) {
+    return null;
+  }
+
+  options.files = [];
+
+  for (i = 0; i < argv.length; ++i) {
+    if (argv[i] === '-e' && argv[i + 1]) {
+      options.code = argv[++i];
+    }
+    else {
+      options.files.push(argv[i]);
+    }
+  }
+
+  return options;
+}
+
+function validateOptions(options) {
+  var i;
+
+  if (!options) {
+    return false;
+  }
+
+  if (!options.code && !options.files.length) {
+    console.error('Code or files to be executed must be specified.');
+    return false;
+  }
+
+  for (i = 0; i < options.files.length; ++i) {
+    if (!path.existsSync(options.files[i])) {
+      console.error('Unable to locate file "%s".', options.files[i]);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function runFiles(files, options) {
+  var file = files.shift();
+
+  if (!file) {
+    return;
+  }
+
+  runCode(fs.readFileSync(file), options, function (error) {
+    if (error) {
+      return;
+    }
+
+    runFiles(files, options);
+  });
+}
+
+function runCode(code, options, callback) {
+  integrity.run(code, options, function (error, data) {
+    if (error) {
+      console.error('Error while running code: %s', error.message);
+      callback(error);
+      return;
+    }
+
+    console.log(data);
+  });
+}
