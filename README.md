@@ -7,7 +7,7 @@ A node.js module for evaluating JavaScript in the browser.
 From the command line:
 
 1. `integrity-server`
-2. Open http://localhost:5000
+2. Open [http://localhost:5000](http://localhost:5000) in a JavaScript-enabled browser
 3. `integrity -e '1 + 2'` or `integrity code.js`
 
 From your code:
