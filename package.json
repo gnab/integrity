@@ -7,6 +7,6 @@
   }
 , "dependencies":
   {
-    "now": "0.8.1"
+    "dnode": "0.9.6"
   }
 }

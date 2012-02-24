@@ -2,14 +2,21 @@
 <html lang="en">
   <head>
     <title>Integrity</title>
-    <script type="text/javascript" src="/nowjs/now.js"></script>
+    <script type="text/javascript" src="/dnode.js"></script>
     <script type="text/javascript">
-      now.ready(function(){
-        now.run = function(code, callback){
-          var result = eval(code);
-          callback(result);
-        };
-      });
+      window.onload = function () {
+        DNode({
+          run: function (code, callback) {
+            try {
+              var result = eval(code);
+              callback(undefined, result);
+            }
+            catch (error) {
+              callback(error.message, result);
+            }
+          }
+        }).connect();
+      };
     </script>
   </head>
   <body>

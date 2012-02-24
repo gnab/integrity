@@ -79,7 +79,7 @@ function runFiles(files, options) {
     return;
   }
 
-  runCode(fs.readFileSync(file), options, function (error) {
+  runCode(fs.readFileSync(file, 'utf8'), options, function (error) {
     if (error) {
       return;
     }
@@ -91,7 +91,7 @@ function runFiles(files, options) {
 function runCode(code, options, callback) {
   integrity.run(code, options, function (error, data) {
     if (error) {
-      console.error('Error while running code: %s', error.message);
+      console.error('Error while running code: %s', error);
       callback(error);
       return;
     }
